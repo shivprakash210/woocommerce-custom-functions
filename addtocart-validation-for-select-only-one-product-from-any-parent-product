@@ -1,0 +1,26 @@
+function ac_validate_add_cart_item( $passed, $product_id, $quantity, $variation_id = '', $variations= '' ) {
+		
+		$product = new WC_Product($product_id);
+	    $current_product_parent = $product->post->post_parent;
+	
+      	global $woocommerce;
+	
+		$items = $woocommerce->cart->get_cart();	 
+		$cartitems_parents=array();
+	
+		foreach($items as $item => $values) { 
+			
+				$_product = $values['data']->post;
+			
+				array_push($cartitems_parents,$_product->post_parent);
+		} 
+	     
+		if(in_array($current_product_parent,$cartitems_parents)){
+			$passed = false;
+        	wc_add_notice( __( 'You can select only one product from one parent', 'textdomain' ), 'error' );
+		}
+    
+    return $passed;
+
+}
+add_filter( 'woocommerce_add_to_cart_validation', 'ac_validate_add_cart_item', 10, 5 );
