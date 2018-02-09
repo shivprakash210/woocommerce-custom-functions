@@ -24,3 +24,23 @@ function ac_validate_add_cart_item( $passed, $product_id, $quantity, $variation_
 
 }
 add_filter( 'woocommerce_add_to_cart_validation', 'ac_validate_add_cart_item', 10, 5 );
+
+/* add reset password link*/
+add_filter('mandrill_payload', 'wpmandrill_auto_add_breaks');
+function wpmandrill_auto_add_breaks($message) {
+ 
+$html = $message['html'];
+ 
+$is_comment_notification = ( $message['tags']['automatic'][0] == 'wp_wp_notify_moderator' );
+$is_password_reset = ( $message['tags']['automatic'][0] == 'wp_retrieve_password' );
+$no_html_found = ( $html == strip_tags($html) );
+ 
+// Add line breaks and links to messages that don't appear to be HTML
+if ( $no_html_found || $is_comment_notification || $is_password_reset ) {
+$html = wpautop($html);
+$message['html'] = make_clickable($html);
+}
+ 
+return $message;
+ 
+}
